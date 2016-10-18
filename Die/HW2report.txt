@@ -1,0 +1,13 @@
+Troy Bates (0435028)
+9/29/16
+HW2
+High Level
+	This program has two sperate kinds of die, basic dies and loaded die. These can be rolled and looked at. The loaded die rolls a specific side at a higher probablility than the others.	
+Implimentation
+	The goal of this project was to expand upon home work 1. To do this the die class was expanded to impliment compairable. Then the methods equals(), hashCode(), toString(), and compareTo() were overridden. This allows the user to see if two dies are identicel. The hashCode is implimented using the number of sides and the top number. To String can be called on the die object, it tells the users the number of sides, and the top number. Compare to returns an integer based on if the top number is less than, greater than, or equal to.
+	A loaded die class was created, which extends the die class. The loaded die can be created with N numbers of side, and then one side can be loaded with a value between 0 and 100, that represents the persent for that side. The loaded die can be rolled, it assigns a value between 0 and 100 for each side, then generates a random number between 0 and all the numbers added together. Then based on that random number assigns a value between 1 and the number of sides. The two string method tells you that it is a loaded die, the number of sides, what side it is loaded on, and the number on top.
+	A class Array of Dice was created to test rolling an array of 5 dices and then sorting them from high to low.
+	There we no issues implimenting these designs. 
+ Testing
+	The die is tested using a similar class to the last project. One 6 sided die is created and rolled 10000 times, the results are recorded and then the probability is printed. The same is done with a loaded die. The get top is checked with one die by rolling it and then checking the top. Equals is checked by rolling 2 six sided die and if they are equal returning true.
+	The Array of Die class is used to roll 5 die at the same time, they are then looked at, they are then sorted; checking that they are compairable. After they are sorted they are then printed in order.
