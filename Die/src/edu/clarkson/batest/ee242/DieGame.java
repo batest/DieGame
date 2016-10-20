@@ -9,6 +9,8 @@ import java.util.Vector;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.*;  // Contains EventHandler & ActionEvent
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.input.*; // Contains MouseEvent & KeyEvent
 import javafx.stage.*; // Contains Stage and StageStyle
 import javafx.util.Pair;
@@ -21,102 +23,113 @@ import javafx.scene.text.Text;
 import javafx.scene.image.*; // Contains ImageView & Image
 import javafx.scene.layout.*; // Contains subclasses of anchorPane
 import javafx.scene.paint.Color;
-
+/**
+ * This is a GUI that impliments the die and loaded die classes in order to play a dice game
+ * This game keeps track of points. If you roll a 1 on the first roll you lose.
+ * Every time you roll a new die it is added to a list and you get as many points as the number on the die.
+ * If you roll the same number twice without rolling a 1 in between you lose.
+ * @author troy
+ *
+ */
 public class DieGame extends Application {
 		
-	double width = 300.0;
-	double height = 200.0;
-	static Die gameDie = new Die();
-	int scoreValue = 0;
-	int numberOfRolls=0;
-	int pastRollValue = 1;
-	int currentRollValue = 1;
-	Text pastRoll = new Text(105,10 ,"Past Roll");
-	Text currentRoll  = new Text(315, 10, "Current Roll");
-	Text pastDieNumber = new Text(310, 100 ," X");
-	Text rollCount = new Text(90,180,"Number Of Rolls: 0");
-	Text score = new Text(90,155,"Score: 0" );
-	Text currentDieNumber = new Text(90, 100, " X");
-	Rectangle pastDie = new Rectangle(300, 25, 100, 100);
-	Rectangle currentDie = new Rectangle(80, 25, 100,100);
-	Boolean gameOver = false;
-	Vector<Integer> previousValues = new Vector<>();
+	double width = 500.0; //width of the anchor pane
+	double height = 300.0; //height of the anchor pane
+	static Die gameDie = new Die(); //die used in game can be a standard die or loaded die
+	int scoreValue = 0; 	//keeps track of points
+	int numberOfRolls=0;	//keeps track of how many times the die has been rolled
+	int pastRollValue = 1;	//gives past roll value for reference
+	int currentRollValue = 1;	//represents the current roll
+	Text pastRoll = new Text("Past Roll:"); 			//------------------------------------------
+	Text currentRoll  = new Text("Current Roll");
+	Text rollCount = new Text("Number Of Rolls: 0");
+	Text score = new Text("Score: 0" );				//All of these lay out the text for the GUI
+	Text currentDieNumber = new Text("X");
+	Text pastDieValues = new Text("");
+	Text title	=new Text("Hot Dice");
+	Rectangle currentDie = new Rectangle(100,100);	//------------------------------------------
+	Boolean gameOver = false;		//represents if the user has lost
+	Vector<Integer> previousValues = new Vector<>();	//a vector of previously rolled values, serves to check if the user has lost
 	
-	static List<String> choices = new ArrayList<>();
+	/**
+	 * Main function begins the GUI
+	 * @param args
+	 */
 	public static void main(String[] args) {
-		choices.add("Standard");
-		choices.add("Loaded");
-		launch(args);
+		launch(args); //launches gui with args as an input
 		
 	}
-	
+	/**
+	 * Start is used to create a multi threaded application it adds all of the buttons text and images to properly lay out the GUI.
+	 * Start will also create event listeners, so that when the buttons are pressed they call a sub routine.
+	 */
 	public void start(final Stage primaryStage) {
-		try {			
-			/* 
-			 * Step 0: Initialize the global variables
-			 */	
+		try {						
+			GridPane root = new GridPane();			//creates gid pane
+			root.getStyleClass().add("dietheme"); 	//sets theme to what is defined in application.css
 			
-			GridPane root = new GridPane();
-			root.getStyleClass().add("graytheme");
-			
-			AnchorPane anchorPane = new AnchorPane();
+			AnchorPane anchorPane = new AnchorPane(); //creates anchorPane this will display our data to the user
 			anchorPane.setMinSize(width, height);
 			anchorPane.setMaxSize(width, height);
-			anchorPane.setPrefSize(width, height);
+			anchorPane.setPrefSize(width, height);// sets anchor pane to specific size
+			
+			HBox buttonsBox = new HBox();	//HBox sets inputs side by side
+			buttonsBox.getStyleClass().add("dietheme"); //sets color scheme, font and centered
+			
 			
 			/*
-			 * The HBox is a layout manager object 
-			 * that allows placing objects side-by-side
-			 * (similar to this is the VBox). All buttons
-			 * are placed in the HBox, and its style is
-			 * also graytheme.
+			 * Adds all buttons and sets their styles to be the same
 			 */
-			HBox buttonsBox = new HBox();
-			buttonsBox.getStyleClass().add("graytheme");
-			
 			Button StandardNewDieButton = new Button("New Standard Die");
-			StandardNewDieButton.getStyleClass().add("buttontheme");
+			StandardNewDieButton.getStyleClass().add("buttontheme"); 
 			
 			Button LoadedDieButton = new Button("Laod Curent Die");
 			LoadedDieButton.getStyleClass().add("buttontheme");
 
 			Button rollDieButton = new Button("Roll Die");
 			rollDieButton.getStyleClass().add("buttontheme");			
-			
+		
+			Button newGame = new Button("New Game");
+			newGame.getStyleClass().add("buttontheme");
+		
 			/*
 			 * quitButton lets you quit the program
 			 */
 			Button quitButton = new Button("Quit");
 			quitButton.getStyleClass().add("buttontheme");
 			
-			Button newGame = new Button("New Game");
-			newGame.getStyleClass().add("buttontheme");
-		
+			/*
+			 * Vbox takes objects and displays them vertically
+			 */
+			VBox gameBox = new VBox();
+			gameBox.getStyleClass().add("dietheme");
+			/*
+			 * Sets all texts to the same themes
+			 */
 			score.getStyleClass().add("texttheme");
 			rollCount.getStyleClass().add("texttheme");
 			currentRoll.getStyleClass().add("texttheme");
 			pastRoll.getStyleClass().add("texttheme");
 			currentDieNumber.getStyleClass().add("dietheme");
-			pastDieNumber.getStyleClass().add("dietheme");
+			pastDieValues.getStyleClass().add("texttheme");
+			title.getStyleClass().add("titletheme");
 			
 			
-			
+			/*
+			 * Creates a rectangle that represents a side of a die
+			 */
 			currentDie.setFill(Color.WHITE);
 			currentDie.setArcHeight(25);
 			currentDie.setArcWidth(25);
-
-			pastDie.setFill(Color.WHITE);
-			pastDie.setArcHeight(25);
-			pastDie.setArcWidth(25);
 
 /*			Image currentDiePNG = new Image("/DieImages/Die1.png");
 			ImageView currentDieImage = new ImageView(currentDiePNG);
 			currentDieImage.setX(100.00);
 			currentDieImage.setY(100.00);*/
 			/*
-			 * The scene is created from the GridanchorPane root
+			 * The scene is created
 			 */
-			Scene scene = new Scene( root, 500, 300 );
+			Scene scene = new Scene( root, width, height+50 );
 			
 			/*
 			 * Add the file application.css as a resource to the
@@ -126,83 +139,46 @@ public class DieGame extends Application {
 					getClass().getResource("application.css").toExternalForm() );
 			
 			/*
-			 * Step 1(b): Create the scene graph
-			 */
-			
-			/*
-			 * Buttons go into the buttonsBox
+			 * All Buttons go into the buttonsBox
 			 */
 			buttonsBox.getChildren().add( rollDieButton );
 			buttonsBox.getChildren().add( newGame );
 			buttonsBox.getChildren().add( StandardNewDieButton );
 			buttonsBox.getChildren().add(LoadedDieButton);
-				
 			buttonsBox.getChildren().add( quitButton );	
 			
-			
-			
-			anchorPane.getChildren().add(score);
-			anchorPane.getChildren().add(rollCount);
-			anchorPane.getChildren().add(currentRoll);
-			anchorPane.getChildren().add(pastRoll);
-			anchorPane.getChildren().add(currentDie);
-			anchorPane.getChildren().add(pastDie);
-			anchorPane.getChildren().add(currentDieNumber);
-			anchorPane.getChildren().add(pastDieNumber);
-			//anchorPane.getChildren().add(currentDieImage);
+			/*
+			 * creates a stack pane to symbolize a die, the die backround and the number are placed in it
+			 */
+			StackPane dieImage = new StackPane();
+			dieImage.getStyleClass().add("dietheme");
+			dieImage.getChildren().addAll(currentDie,currentDieNumber);
 			
 			/*
-			 * The anchorPane and buttonsBox go into the
-			 * GridPane root. The add() method of GridPane lets you 
-			 * directly add elements at different indices
-			 * in a grid, instead of using getChildren().add()
+			 * Adds all of the text to the vBox gameBox and centers it
+			 */
+			gameBox.getChildren().add(title);
+			gameBox.getChildren().add(currentRoll);
+			gameBox.getChildren().add(dieImage);
+			gameBox.getChildren().add(score);
+			gameBox.getChildren().add(rollCount);
+			gameBox.getChildren().add(pastRoll);
+			gameBox.getChildren().add(pastDieValues);
+			gameBox.translateXProperty().bind(scene.widthProperty().subtract(gameBox.widthProperty().add(20))
+                    .divide(2));
+			anchorPane.getChildren().add(gameBox); //adds game box to anchor Pane 
+		
+			
+			/*
+			 * adds in the anchor pane and buttonsbox to the root
 			 */
 			root.add( anchorPane, 0, 0 );
 			root.add( buttonsBox, 0, 1 );
 			
+				
 			
 			/*
-			 * Step 2: Set up all your event handling
-			 */
-			
-			/*
-			 * To handle mouse clicks and mouse drags, we create an EventHandler object that handles
-			 * a MouseEvent. The anonymous class can also be used to create a named object,
-			 * called mouseHandler, which will be attached to mouse clicks and mouse 
-			 * drags in the image view. mouseHandler places a circle at the click point
-			 */
-			EventHandler<MouseEvent> mouseHandler = new EventHandler<MouseEvent>() {
-				public void handle( MouseEvent event ) {
-					
-					}					
-			};
-			
-			/*
-			 * Since several nodes in the scene graph can receive the 
-			 * key pressed event, specifically register an event filter
-			 * for key pressing to the scene. The key pressed event
-			 * detects if the 'Z' key has has been pressed, and 
-			 * clears the circles if it has. 
-			 */
-			scene.addEventFilter( KeyEvent.KEY_PRESSED, 
-					new EventHandler<KeyEvent>() {				
-				public void handle( KeyEvent event ) {
-					// A KeyEvent object contains information
-					// about the pressed keycode. This code
-					// can be compared to the constants in the 
-					// KeyCode enumeration
-					if (event.getCode().equals( KeyCode.R ) ) {
-						//roll die						
-					}
-					event.consume(); // do not let the event go down to the target
-				}
-			});
-						
-			
-			/*
-			 * addNewDieButton should open a dialog box (specifically
-			 * a TextInputDialog). The dialog box allows the user to
-			 * provide an image name.
+			 * addNewDieButton opens a dialog box, the user than provides how many sided die they want, it will then change the game die to be that many sides
 			 */
 			StandardNewDieButton.setOnAction( new EventHandler<ActionEvent>() {
 				public void handle( ActionEvent event ) {
@@ -212,20 +188,30 @@ public class DieGame extends Application {
 					newDieDialog.setHeaderText("New Standard Die");
 					newDieDialog.setContentText("Input the number of sides:");
 
-					// Traditional way to get the response value.
-					Optional<String> result = newDieDialog.showAndWait();
-					if (result.isPresent()){
-						if (result.get().matches("\\d*")) 
-							gameDie = new Die(Integer.parseInt(result.get()));
+					Optional<String> result = newDieDialog.showAndWait(); //waits for the user to input value
+					if (result.isPresent()&&result.get().matches("\\d*")){ //makes sure the user result is present and it is a number
+							if (Integer.parseInt(result.get()) > 2) //makes sure the value is greater than 2
+								{
+								gameDie = new Die(Integer.parseInt(result.get())); //if it is a number it creates a die that many sides
+								newGame();
+								}							
+							
 					}
 				}
 					
 			});
-			
+			/**
+			 * Opens a dialog box, that will load the current die. 
+			 * It asks the user to input the desired side to load and its factor
+			 * it will only accept numbers between 1-100 for the load factor
+			 * and then 1 through the number of sides. It then changes the die to a loaded die with those parameters
+			 */
 			LoadedDieButton.setOnAction( new EventHandler<ActionEvent>() {
 				public void handle( ActionEvent event ) {
+					/*
+					 * Dialog takes two string inputs
+					 */
 					Dialog<Pair<String, String>> loadedDieDialog = new Dialog<>();
-					
 					ButtonType loginButtonType = new ButtonType("Load Die", ButtonData.OK_DONE);
 					loadedDieDialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
 					
@@ -238,24 +224,30 @@ public class DieGame extends Application {
 					
 					TextField weight = new TextField();
 					weight.setPromptText("1 - 100");
-					
+					/*
+					 * adds both string inputs to a grid
+					 */
 					grid.add(new Label("Load Side:"), 0, 0);
 					grid.add(side, 1, 0);
-					grid.add(new Label("Load weight:"), 0, 1);
+					grid.add(new Label("Load Factor:"), 0, 1);
 					grid.add(weight, 1, 1);
 					
 					loadedDieDialog.setTitle("Load Die");
 					loadedDieDialog.setHeaderText("New Standard Die");
 					loadedDieDialog.setContentText("Input the number of sides:"); 
-					
 					loadedDieDialog.getDialogPane().setContent(grid);
 					
-					Optional<Pair<String, String>> result = loadedDieDialog.showAndWait();
-				
+					Optional<Pair<String, String>> result = loadedDieDialog.showAndWait(); //waits for input
+					/*
+					 * makes sure both inputs are numbers and the are in the proper range, 
+					 * then creates a loaded die and starts a new game
+					 */
 					if (!side.getText().isEmpty()&&!weight.getText().isEmpty()&&side.getText().matches("\\d*") && weight.getText().matches("\\d*")){
+						if(Integer.parseInt(side.getText())>0&&Integer.parseInt(side.getText())<gameDie.numberOfSides&&Integer.parseInt(weight.getText())>0&&Integer.parseInt(weight.getText())<100){
 						gameDie= new LoadedDie(gameDie.numberOfSides,Integer.parseInt(side.getText()),Integer.parseInt(weight.getText()) );
+						newGame();
+						}
 					}
-
 					
 
 				}
@@ -263,37 +255,11 @@ public class DieGame extends Application {
 			});
 			
 			/*
-			 * The switch circle button should cycle through the circle themes,
-			 * and set the current circles' style to the new theme, as well as
-			 * set the group to the new theme for any new circles.
+			 * rolls the die when pressed
 			 */
 			rollDieButton.setOnAction( new EventHandler<ActionEvent>() {
 				public void handle( ActionEvent event ) {
-					if (!gameOver){
-						pastRollValue=currentRollValue;
-						currentRollValue=gameDie.roll();
-						numberOfRolls++;
-						currentDieNumber.setText(""+currentRollValue);
-						if(numberOfRolls>1){
-							pastDieNumber.setText(""+pastRollValue);
-							if (currentRollValue == 1)
-								previousValues.clear();
-							else if (previousValues.contains(currentRollValue))
-								gameOver();
-							else
-								previousValues.addElement(currentRollValue);
-							}
-						
-						else{
-							if (currentRollValue ==1)
-								gameOver();
-							pastDieNumber.setText(" X");
-						}
-						scoreValue = scoreValue + currentRollValue;
-						score.setText("Score: "+scoreValue);
-						rollCount.setText("Number Of Rolls: "+ numberOfRolls);
-						
-					}
+					roll();
 				}
 			});
 			
@@ -311,15 +277,20 @@ public class DieGame extends Application {
 					}
 				}
 			});			
+			/**
+			 * starts a new game
+			 */
 			newGame.setOnAction( new EventHandler<ActionEvent>() {
-
-				@Override
 				public void handle(ActionEvent arg0) {
 					newGame();
 				}
 				
 			});
-			
+			/*
+			 * disables the boarder around the window
+			 * sets the scene to be the designed game
+			 * disables resizeing and shows it to the user
+			 */
 			primaryStage.initStyle( StageStyle.TRANSPARENT );			
 			primaryStage.setScene( scene );
 			primaryStage.setResizable( false );
@@ -328,9 +299,57 @@ public class DieGame extends Application {
 			e.printStackTrace();
 		}
 	}
-
+/**
+ * Called to roll the die
+ * Checks to see if the game is over, then follows the game logic
+ * making sure the user didnt loose already, then checks to see if the first roll is a 1.
+ * Also checks to see the number rolled has been rolled since the last time a 1 has been rolled before
+ */
+	protected void roll() {
+		if (!gameOver){ //checks if the game is over
+			currentRollValue=gameDie.roll(); //rolls the die
+			numberOfRolls++; //increments roll
+			currentDieNumber.setText(""+currentRollValue); //updates users
+			if(numberOfRolls>1){ //checks to see if it is the first roll
+				if (currentRollValue == 1) //if not the first roll and a 1 is rolled it resets the previous values
+					{
+					previousValues.clear();
+					pastDieValues.setText("");
+					}
+				
+				else if (previousValues.contains(currentRollValue)) //if the value is present in the current roll vector the player looses
+					gameOver();
+				else{
+					previousValues.addElement(currentRollValue); //if none of the prior happen the user gets the points and the current roll is added to the vector 
+					if(previousValues.size()>20) //checks how many values are in the vector
+						pastDieValues.setWrappingWidth(300); // wrapps the past die values so that if the user selects a large die it can handle multiple lines
+					pastDieValues.setText("" +previousValues.toString()); //displays all the variables
+					}
+			}
+			else{
+				if (currentRollValue ==1)
+					gameOver(); //if the user rolls 1 on their first roll they lose
+				else
+				{
+					previousValues.addElement(currentRollValue); //adds the element to the vector
+					pastDieValues.setText("" +previousValues.toString()); //displays last roll as past rolls
+					}
+			}
+			scoreValue = scoreValue + currentRollValue; //adds score
+			score.setText("Score: "+scoreValue); //sets the text to be the score
+			rollCount.setText("Number Of Rolls: "+ numberOfRolls); //shows roll count
+		}
+	}
+	/**
+	 * Game over creates an alert box that alerts the user that the game is 
+	 * over and asks if they want to play again
+	 * if they say yes it starts a new game
+	 */
 	protected void gameOver() {
-		gameOver=true;
+		gameOver=true; //sets variable represetning the end of game to true
+		/*
+		 *sets up the alert with desired outputs
+		 */
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Game Over");
 		alert.setHeaderText("Game Over! Play again?");
@@ -340,25 +359,30 @@ public class DieGame extends Application {
 		alert.getButtonTypes().setAll(buttonTypeYes,buttonTypeNo);
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == buttonTypeYes){
-			newGame();
+			newGame(); //starts a new game
 		} else {
 			 	//do nothing and wait for the user to close out or start a new game
 			}
 		}
+	
+	/**
+	 * New game resets all of the text fields and resets the score, past values, number of rolls, 
+	 * then resets gameOver to be false 
+	 */
 
 	protected void newGame() {
+		previousValues.clear(); //clears all past values
 		scoreValue = 0;
 		numberOfRolls=0;
 		pastRollValue = 1;
 		currentRollValue = 0;
 		score.setText("Score: "+scoreValue);
 		rollCount.setText("Number Of Rolls: "+ numberOfRolls);
-		currentDieNumber.setText(" X");
-		pastDieNumber.setText(" X");
+		currentDieNumber.setText("X");
+		pastDieValues.setText("");
 		gameOver=false;
+		pastDieValues.setWrappingWidth(0); //unwrapps text
 	}
-		
-		
 	}
 	
 	

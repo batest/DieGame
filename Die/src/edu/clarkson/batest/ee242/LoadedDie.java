@@ -31,6 +31,8 @@ public class LoadedDie extends Die{
 				}
 				else{
 					weightedValue[i]=(100-loadFactor)/(n-1); // assigns all the other sides to a default value
+					if (weightedValue[i]==0)
+						weightedValue[i]=1;
 				}
 			}
 			LoadedSide=loadedSide;
