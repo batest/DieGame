@@ -1,5 +1,5 @@
 .graytheme {
-	-fx-background-color: #333333; /* used for GridPane */
+	-fx-background-color: #1c711f; /* used for GridPane */
 	-fx-background-radius: 5; /* used for GridPane */
 	-fx-padding: 10 10 10 20; /* used for GridPane */
 	-fx-alignment: center; /* used for GridPane and HBox */
@@ -8,25 +8,17 @@
 }
 
 .buttontheme {
-	-fx-background-color: #555555;
+	-fx-background-color: #1f1c71;
 	-fx-font-family: "Arial";
-	-fx-text-fill: #999999;
+	-fx-text-fill: #FFF;
 }
 
-.circleredtheme {
-	-fx-fill: RED;
-	-fx-stroke: BLACK;
+.texttheme{
+    -fx-font-family: "Arial";
+	-fx-fill: #FFF;
 }
 
-
-.circlegreentheme {
-	-fx-fill: GREEN;
-	-fx-stroke: BLACK;
+.dietheme{
+	 -fx-font: 72px "signboard";
+	-fx-fill: #F00;
 }
-
-
-.circlebluetheme {
-	-fx-fill: BLUE;
-	-fx-stroke: BLACK;
-}
-
