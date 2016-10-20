@@ -1,16 +1,21 @@
 package edu.clarkson.batest.ee242;
 
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Vector;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.*;  // Contains EventHandler & ActionEvent
 import javafx.scene.input.*; // Contains MouseEvent & KeyEvent
 import javafx.stage.*; // Contains Stage and StageStyle
+import javafx.util.Pair;
 import javafx.scene.*; // Contains Scene, Group, and Node
 import javafx.scene.control.*; // Contains Button
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.shape.*; // Contains Circle
 import javafx.scene.text.Text;
 import javafx.scene.image.*; // Contains ImageView & Image
@@ -35,6 +40,7 @@ public class DieGame extends Application {
 	Rectangle pastDie = new Rectangle(300, 25, 100, 100);
 	Rectangle currentDie = new Rectangle(80, 25, 100,100);
 	Boolean gameOver = false;
+	Vector<Integer> previousValues = new Vector<>();
 	
 	static List<String> choices = new ArrayList<>();
 	public static void main(String[] args) {
@@ -216,23 +222,45 @@ public class DieGame extends Application {
 					
 			});
 			
-/*			LoadedDieButton.setOnAction( new EventHandler<ActionEvent>() {
+			LoadedDieButton.setOnAction( new EventHandler<ActionEvent>() {
 				public void handle( ActionEvent event ) {
+					Dialog<Pair<String, String>> loadedDieDialog = new Dialog<>();
 					
-					ChoiceDialog<Pair<String,String> dialog = new ChoiceDialog<>("b", choices);
-					newDieDialog.setTitle("New Die");
-					newDieDialog.setHeaderText("New Standard Die");
-					newDieDialog.setContentText("Input the number of sides:");
-
-					// Traditional way to get the response value.
-					Optional<String> result = newDieDialog.showAndWait();
-					if (result.isPresent()){
-						if (result.get().matches("\\d*")) 
-							gameDie = new Die(Integer.parseInt(result.get()));
+					ButtonType loginButtonType = new ButtonType("Load Die", ButtonData.OK_DONE);
+					loadedDieDialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+					
+					GridPane grid = new GridPane();
+					grid.setHgap(10);
+					grid.setVgap(10);
+					
+					TextField side = new TextField();
+					side.setPromptText("1 - "+ gameDie.numberOfSides);
+					
+					TextField weight = new TextField();
+					weight.setPromptText("1 - 100");
+					
+					grid.add(new Label("Load Side:"), 0, 0);
+					grid.add(side, 1, 0);
+					grid.add(new Label("Load weight:"), 0, 1);
+					grid.add(weight, 1, 1);
+					
+					loadedDieDialog.setTitle("Load Die");
+					loadedDieDialog.setHeaderText("New Standard Die");
+					loadedDieDialog.setContentText("Input the number of sides:"); 
+					
+					loadedDieDialog.getDialogPane().setContent(grid);
+					
+					Optional<Pair<String, String>> result = loadedDieDialog.showAndWait();
+				
+					if (!side.getText().isEmpty()&&!weight.getText().isEmpty()&&side.getText().matches("\\d*") && weight.getText().matches("\\d*")){
+						gameDie= new LoadedDie(gameDie.numberOfSides,Integer.parseInt(side.getText()),Integer.parseInt(weight.getText()) );
 					}
+
+					
+
 				}
 					
-			});*/
+			});
 			
 			/*
 			 * The switch circle button should cycle through the circle themes,
@@ -246,12 +274,20 @@ public class DieGame extends Application {
 						currentRollValue=gameDie.roll();
 						numberOfRolls++;
 						currentDieNumber.setText(""+currentRollValue);
-						if(numberOfRolls>1)
+						if(numberOfRolls>1){
 							pastDieNumber.setText(""+pastRollValue);
-						else
+							if (currentRollValue == 1)
+								previousValues.clear();
+							else if (previousValues.contains(currentRollValue))
+								gameOver();
+							else
+								previousValues.addElement(currentRollValue);
+							}
+						
+						else{
+							if (currentRollValue ==1)
+								gameOver();
 							pastDieNumber.setText(" X");
-						if (currentRollValue==pastRollValue){
-							gameOver();
 						}
 						scoreValue = scoreValue + currentRollValue;
 						score.setText("Score: "+scoreValue);
