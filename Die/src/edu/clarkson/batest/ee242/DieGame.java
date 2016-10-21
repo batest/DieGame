@@ -1,6 +1,7 @@
 package edu.clarkson.batest.ee242;
 
 import java.awt.Insets;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class DieGame extends Application {
 	Rectangle currentDie = new Rectangle(100,100);	//------------------------------------------
 	Boolean gameOver = false;		//represents if the user has lost
 	Vector<Integer> previousValues = new Vector<>();	//a vector of previously rolled values, serves to check if the user has lost
-	
+	ImageView diePNG = new ImageView();
 	/**
 	 * Main function begins the GUI
 	 * @param args
@@ -83,7 +84,7 @@ public class DieGame extends Application {
 			Button StandardNewDieButton = new Button("New Standard Die");
 			StandardNewDieButton.getStyleClass().add("buttontheme"); 
 			
-			Button LoadedDieButton = new Button("Laod Curent Die");
+			Button LoadedDieButton = new Button("Make a loaded Die");
 			LoadedDieButton.getStyleClass().add("buttontheme");
 
 			Button rollDieButton = new Button("Roll Die");
@@ -119,13 +120,8 @@ public class DieGame extends Application {
 			 * Creates a rectangle that represents a side of a die
 			 */
 			currentDie.setFill(Color.WHITE);
-			currentDie.setArcHeight(25);
-			currentDie.setArcWidth(25);
 
-/*			Image currentDiePNG = new Image("/DieImages/Die1.png");
-			ImageView currentDieImage = new ImageView(currentDiePNG);
-			currentDieImage.setX(100.00);
-			currentDieImage.setY(100.00);*/
+
 			/*
 			 * The scene is created
 			 */
@@ -139,7 +135,7 @@ public class DieGame extends Application {
 					getClass().getResource("application.css").toExternalForm() );
 			
 			/*
-			 * All Buttons go into the buttonsBox
+			 * All Buttons get added to the buttonsBox
 			 */
 			buttonsBox.getChildren().add( rollDieButton );
 			buttonsBox.getChildren().add( newGame );
@@ -155,8 +151,18 @@ public class DieGame extends Application {
 			dieImage.getChildren().addAll(currentDie,currentDieNumber);
 			
 			/*
+			 * Handles the images
+			 */
+			//Image diePicture = new Image("Die1.png");
+			
+			diePNG.setVisible(false);
+			/*
 			 * Adds all of the text to the vBox gameBox and centers it
 			 */
+			dieImage.getChildren().add(diePNG);
+			
+			
+			
 			gameBox.getChildren().add(title);
 			gameBox.getChildren().add(currentRoll);
 			gameBox.getChildren().add(dieImage);
@@ -309,7 +315,14 @@ public class DieGame extends Application {
 		if (!gameOver){ //checks if the game is over
 			currentRollValue=gameDie.roll(); //rolls the die
 			numberOfRolls++; //increments roll
-			currentDieNumber.setText(""+currentRollValue); //updates users
+			if(currentRollValue < 10){
+				diePNG.setVisible(true); //shows image on top of other box
+				diePNG.setImage(new Image(getClass().getResource("Die"+currentRollValue+".png").toExternalForm())); //loads the new image
+			}
+			else{
+				diePNG.setVisible(false); //disables the image
+				currentDieNumber.setText(""+currentRollValue); //updates users
+			} 
 			if(numberOfRolls>1){ //checks to see if it is the first roll
 				if (currentRollValue == 1) //if not the first roll and a 1 is rolled it resets the previous values
 					{

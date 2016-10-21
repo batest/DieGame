@@ -1,0 +1,2 @@
+The user of this application said that their should be rules provided. Overall the GUI was easy to use and intuitive creating a loaded die was a little more complicated. The user thought it would be a good idea to impliment a high score functionality. 
+The application was given with no instruction, when asked the rules they were explained. Functionality was pretty strait forward. 

@@ -1,0 +1,7 @@
+Troy Bates
+10/21/16
+HW#3
+
+	The goal of this program was to create a graphical user interface using JavaFX. It displays an N-sided die. This die has button to be rolled. A button to start a new game. A button to change the number of sides of the die. A button to change the standard die to a loaded die. And a button to quit.
+	The game is played by rolling the die. If a 1 is rolled on the first roll it is an automatic loss. The the user keeps rolling the die, the user is given points based on what number is rolled. If the same number is rolled twice without a 1 in between the user loses.
+	The GUI impliments an imgae for die numbers between 1 and 9. This is all created in the class DieGame and uses Die and LoadedDie to function properly.
